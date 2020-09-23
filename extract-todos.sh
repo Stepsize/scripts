@@ -1,23 +1,33 @@
 #! /bin/bash
 
+printf "\nChecking if ${PWD##*/} is a Git repository..."
+
 # Exit 1 if script is run from a non git repository
 if ! [ -d .git ]; then
-  printf "\nERROR: Script failed to run. This script only works within Git repositories.\n";
-  exit 1
+  printf "\nThis script only works within Git repositories.\n";
+  exit 0
 fi;
+
+printf "\nSearching for todos...\n"
 
 # Get required repository metadata
 remote_url=$(git ls-remote --get-url)
 repo_name=$(basename "$remote_url" .git)
 commit_hash=$(git rev-parse --short HEAD)
 
-# Get required user metadata
+# Get user.name metadata
 user_name=$(git config user.name)
-user_email=$(git config user.email)
+# Exit 1 if user name can't be found
+if ! [ "$user_name" ] ; then
+  printf "\nGit user.name not found. Please set it using 'git config user.name \"<your name>\"'\n";
+  exit 1
+fi;
 
-# Exit 1 if user metadata can't be found
-if ! [ "$user_name" ] || ! [ "$user_email" ]; then
-  printf "\nUser information could not be found. Please contact us on support@stepsize.com.\n";
+# Get user.email metadata
+user_email=$(git config user.email)
+# Exit 1 if user email can't be found
+if ! [ "$user_email" ] ; then
+  printf "\nGit user.email not found. Please set it using 'git config user.email \"<your email>\"'\n";
   exit 1
 fi;
 
@@ -69,5 +79,5 @@ else
   printf $output | xclip -i -sel c -f | xclip -i -sel p
 fi
 
-printf "\nTODO comments are now in your clipboard, please paste them into a text field on the Import page in Stepsize web app.\n\n"
+printf "\nTODO comments are now in your clipboard, please paste them into the text field on app.stepsize.com/import/tool \n\n"
 printf "Thank you for using Stepsize!\n"
