@@ -1,5 +1,14 @@
 #! /bin/bash
 
+set -o pipefail
+trap 'catch $? $LINENO' EXIT
+
+catch() {
+  if [ "$1" != "0" ]; then
+    printf "\nThere was an error running the script. Apologies — please get in touch with us at support@stepsize.com so we can look into it.\n"
+  fi
+}
+
 printf "\nChecking if ${PWD##*/} is a Git repository...\n"
 
 # Exit if script is run from a non git repository
