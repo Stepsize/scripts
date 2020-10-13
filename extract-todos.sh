@@ -1,6 +1,6 @@
 #! /bin/bash
 
-printf "\nChecking if ${PWD##*/} is a Git repository..."
+printf "\nChecking if ${PWD##*/} is a Git repository...\n"
 
 # Exit if script is run from a non git repository
 if ! [ -d .git ]; then printf "\nThis script only works within Git repositories.\n"; exit 0; fi
@@ -53,8 +53,8 @@ do
     text_escaped=$(echo "$text" | sed "s/\\\n/\\\\\\\\\n/g")
     line_commit_hash=$(git blame -L$line_number,+1 -- "$f" | awk '{print $1;}')
 
-    # Skip uncommitted lines
-    if [ "$line_commit_hash" = "000000000" ]; then continue; fi
+    # Skip uncommitted lines - commit hash only contains zeros
+    if [[ "$line_commit_hash" =~ ^0+$ ]]; then continue; fi
 
     author_and_date=$(git log $line_commit_hash -1 --pretty=format:'%an,%ae,%ai')
 
