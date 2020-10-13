@@ -2,48 +2,38 @@
 
 printf "\nChecking if ${PWD##*/} is a Git repository..."
 
-# Exit 1 if script is run from a non git repository
-if ! [ -d .git ]; then
-  printf "\nThis script only works within Git repositories.\n";
-  exit 0
-fi;
-
-printf "\nSearching for todos...\n"
+# Exit if script is run from a non git repository
+if ! [ -d .git ]; then printf "\nThis script only works within Git repositories.\n"; exit 0; fi
 
 # Get required repository metadata
 remote_url=$(git ls-remote --get-url)
+if ! [ "$remote_url" ]; then printf "\nRemote URL not found.\n"; exit 0; fi
+
 repo_name=$(basename "$remote_url" .git)
+
 commit_hash=$(git rev-parse --short HEAD)
+if ! [ "$commit_hash" ] ; then printf "\nCommit hash not found.\n"; exit 0; fi
 
 # Get user.name metadata
 user_name=$(git config user.name)
-# Exit 1 if user name can't be found
-if ! [ "$user_name" ] ; then
-  printf "\nGit user.name not found. Please set it using 'git config user.name \"<your name>\"'\n";
-  exit 1
-fi;
+if ! [ "$user_name" ] ; then printf "\nGit user.name not found. Please set it using 'git config user.name \"<your name>\"'\n"; exit 0; fi
 
 # Get user.email metadata
 user_email=$(git config user.email)
-# Exit 1 if user email can't be found
-if ! [ "$user_email" ] ; then
-  printf "\nGit user.email not found. Please set it using 'git config user.email \"<your email>\"'\n";
-  exit 1
-fi;
+if ! [ "$user_email" ]; then printf "\nGit user.email not found. Please set it using 'git config user.email \"<your email>\"'\n"; exit 0; fi
 
 output="repo_name,remote_url,commit_hash,user_name,user_email\n"
 output="${output}${repo_name},${remote_url},${commit_hash},${user_name},${user_email}\n\n"
 
 output="${output}file_path,line,commit_hash,author_name,author_email,commit_date,text\n"
 
+printf "\nSearching for todos...\n"
+
 # Find files with TODOs in them, -I skips binaries
 files_with_todos=$(git grep -l -I TODO)
 
-# Exit 0 if no TODOs are found
-if ! [ "$files_with_todos" ]; then
-  printf "\nNo TODO comments were found in this repository.\n";
-  exit 0
-fi;
+# Exit if no TODOs are found
+if ! [ "$files_with_todos" ]; then printf "\nNo TODO comments were found in this repository.\n"; exit 0; fi
 
 # Set the default separator to new line so that we can look through lines
 # rather than whitespace
