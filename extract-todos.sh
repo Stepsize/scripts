@@ -27,7 +27,7 @@ output="${output}${repo_name},${remote_url},${commit_hash},${user_name},${user_e
 
 output="${output}file_path,line,commit_hash,author_name,author_email,commit_date,text\n"
 
-printf "\nSearching for todos...\n"
+printf "Searching for todos...\n"
 
 # Find files with TODOs in them, -I skips binaries
 files_with_todos=$(git grep -l -I TODO)
@@ -50,6 +50,7 @@ do
   do
     line_number=$(echo "$t" | sed 's/^[^:]*:\([^:]*\):.*$/\1/')
     text=$(echo "$t" | sed 's/^.*TODO:* *\(.*\)$/\1/')
+    text_escaped=$(echo "$text" | sed "s/\\\n/\\\\\\\\\n/g")
     line_commit_hash=$(git blame -L$line_number,+1 -- "$f" | awk '{print $1;}')
 
     # Skip uncommitted lines
@@ -57,7 +58,7 @@ do
 
     author_and_date=$(git log $line_commit_hash -1 --pretty=format:'%an,%ae,%ai')
 
-    output="${output}${f},${line_number},${line_commit_hash},${author_and_date},'${text}'\n"
+    output="${output}${f},${line_number},${line_commit_hash},${author_and_date},'${text_escaped}'\n"
   done
 done
 
