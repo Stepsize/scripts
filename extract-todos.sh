@@ -67,7 +67,20 @@ __IS_MAC=${__IS_MAC:-$(test $(uname -s) == "Darwin" && echo 'true')}
 if [ -n "${__IS_MAC}" ]; then
   printf $output | /usr/bin/pbcopy
 else
-  printf $output | xclip -i -sel c -f | xclip -i -sel p
+  # If xclip is installed
+  if command -v xclip &> /dev/null
+  then
+    printf $output | xclip -i -sel c -f | xclip -i -sel p
+  else
+    # If clip.exe is installed
+    if command -v clip.exe
+    then
+      printf $output | clip.exe
+    else
+      printf "\nThis script requires xclip or clip.exe.\n"
+      exit 0
+    fi
+  fi
 fi
 
 printf "\nTODO comments are now in your clipboard, please paste them into the text field on app.stepsize.com/import/tool \n\n"
