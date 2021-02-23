@@ -65,7 +65,7 @@ do
     # Skip uncommitted lines - commit hash only contains zeros
     if [[ "$line_commit_hash" =~ ^0+$ ]]; then continue; fi
 
-    author_and_date=$(git log $line_commit_hash -1 --pretty=format:'%an,%ae,%ai')
+    author_and_date=$(git log $line_commit_hash -1 --pretty=format:'%an,%ae,%ai' | sed 's/'\''//g')
 
     output="${output}${f},${line_number},${line_commit_hash},${author_and_date},'${text_escaped}'\n"
   done
